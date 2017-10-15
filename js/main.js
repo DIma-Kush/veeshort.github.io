@@ -274,7 +274,7 @@ function onDocumentMouseMove(event) {
 }
 
 function onDocumentMouseDown() {
-  event.preventDefault();
+  // event.preventDefault();
 
 	mouse.x = (event.clientX/renderer.domElement.clientWidth)*2-1;
 	mouse.y = -(event.clientY/renderer.domElement.clientHeight)*2+1;
