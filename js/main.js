@@ -9,6 +9,8 @@ var rBtnCw, rBtnCcw;
 var container;
 var labels = [];
 
+var stats;
+
 var cameraScrollDirection = {
   left: false,
   right: false,
@@ -22,7 +24,7 @@ var Textures = {
       path: '../assets/textures/terrain/water.jpg'
     },
     grass_01: {
-      path: '../assets/textures/terrain/grass.png'
+      path: '../assets/textures/terrain/grass_01.png'
     },
     fort_01_f: {
       path: '../assets/textures/structures/fort_front.png'
@@ -109,6 +111,9 @@ function createScene() {
   raycaster = new THREE.Raycaster();
 	mouse = new THREE.Vector2();
 
+  stats = stats = new Stats();
+  document.body.appendChild(stats.dom);
+
   Terrain.group = new THREE.Group();
 
   pointLight.castShadow = true;
@@ -120,8 +125,8 @@ function createScene() {
   pointLight.position.y = Terrain.tileSize*Terrain.height/2;
   scene.add(pointLight);
 
-  var orbit = new THREE.OrbitControls(camera, renderer.domElement);
-  orbit.enableZoom = true;
+  // var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+  // orbit.enableZoom = true;
 
   // Output generated map to canvas
   for (var i = 0; i < Terrain.height; i++) {
@@ -129,7 +134,7 @@ function createScene() {
       var geometry = new THREE.BoxBufferGeometry(
         Terrain.tileSize,
         Terrain.tileSize,
-        1.3
+        0.4
       );
       var material;
       if (Terrain.map[i][j] == '0') {
@@ -141,8 +146,8 @@ function createScene() {
           material.shininess = 100;
           tile = new THREE.Mesh(planeG, material);
           tile.userData['isFlat'] = false;
+          tile.position.z -= geometry.parameters.depth/2;
       } else if (Terrain.map[i][j] == '1') {
-
         material = new THREE.MeshLambertMaterial(
           {map: Textures.list.grass_01.texture});
           tile = new THREE.Mesh(geometry, material);
@@ -150,7 +155,7 @@ function createScene() {
       }
       tile.position.x = j * Terrain.tileSize;
       tile.position.y = i * Terrain.tileSize;
-      tile.position.z = geometry.parameters.depth;
+
       Terrain.group.add(tile);
     }
   }
@@ -174,7 +179,7 @@ function updateLabelsPosition() {
   for (var l = 0; l < labels.length; l++) {
     var labelPos = calc2Dpoint(labels[l].parent3D, camera);
     labels[l].style.top = labelPos.y + 'px';
-    labels[l].style.left = labelPos.x + 'px';
+    labels[l].style.left = labelPos.x - labels[l].offsetWidth/2 + 'px';
   }
 }
 
@@ -192,7 +197,8 @@ function onWindowResize() {
 }
 
 function render() {
-	requestAnimationFrame(render);
+  requestAnimationFrame(render);
+  stats.update();
   loop();
 	renderer.render(scene, camera);
 }
@@ -203,10 +209,10 @@ function loop() {
     rotateMap('cw');
   if (Terrain.rotation.ccw)
     rotateMap('ccw');
-  updateLabelsPosition();
 }
 
 function scrollMap() {
+  // updateLabelsPosition();
   if (cameraScrollDirection.right) {
     Terrain.pivot.position.x -= scrollSpeed;
   }
@@ -219,6 +225,9 @@ function scrollMap() {
   if (cameraScrollDirection.bottom) {
     Terrain.pivot.position.y += scrollSpeed;
   }
+  if (cameraScrollDirection.right || cameraScrollDirection.left ||
+      cameraScrollDirection.top || cameraScrollDirection.bottom)
+    updateLabelsPosition();
 }
 
 function rotateMap(direction) {
@@ -247,6 +256,7 @@ function rotateMap(direction) {
         Math.ceil(Terrain.rotation.targetAngle) >= 0) updatePos();
     if (direction == 'cw' && Math.ceil(toDeg(Terrain.pivot.rotation.z)) -
         Math.ceil(Terrain.rotation.targetAngle) <= 0) updatePos();
+    updateLabelsPosition();
   }
 }
 
@@ -295,22 +305,28 @@ function onDocumentMouseDown() {
       intersects[0].object.userData['children'] = building;
       building.position.x = intersects[0].object.position.x;
       building.position.y = intersects[0].object.position.y;
-      building.position.z = intersects[0].object.position.z + 1.15;
+      building.position.z = intersects[0].object.position.z +
+      building.geometry.parameters.depth/2 +
+      intersects[0].object.geometry.parameters.depth/2;
       Terrain.group.add(building);
 
       // add label to a building
       var label = document.createElement('div');
-      label.style.padding = '4px';
-      label.style.background = 'rgba(255,255,255,.6)';
-      label.style.position = 'absolute';
       label.classList.add('label');
       label.innerHTML = "FORT #" + building.id;
-      var labelPos = calc2Dpoint(building, camera);
-      label.style.top = labelPos.y + 'px';
-      label.style.left = labelPos.x + 'px';
-      label['parent3D'] = building;
-      labels.push(label);
+
+      var labelPivot = new THREE.Object3D();
+      labelPivot.position.x = building.position.x;
+      labelPivot.position.y = building.position.y;
+      labelPivot.position.z = building.position.z + building.geometry.parameters.depth*2;
+      Terrain.group.add(labelPivot);
       document.body.appendChild(label);
+
+      var labelPos = calc2Dpoint(labelPivot, camera);
+      label.style.top = labelPos.y + 'px';
+      label.style.left = labelPos.x - label.offsetWidth/2 + 'px';
+      label['parent3D'] = labelPivot;
+      labels.push(label);
     }
 	}
 }

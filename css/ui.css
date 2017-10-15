@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=VT323');
+
 button.ui-btn {
   border: 3px solid #333;
   background: #eee;
@@ -12,7 +14,33 @@ button:hover {
 .no-events {
   pointer-events: none!important;
 }
+
 .label {
+  position: absolute;
+  padding: 8px 0px;
+  color: #fff;
   pointer-events: none;
-  font-family: 'Roboto', sans-serif;
+  white-space:nowrap;
+  font-family: 'VT323', sans-serif;
+  background: url('../assets/textures/ui/label/content.png') repeat-x center;
+}
+.label::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -25px;
+  height: 100%;
+  width: 25px;
+  display: block;
+  background: url('../assets/textures/ui/label/content_left.png') no-repeat center;
+}
+.label::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -25px;
+  height: 100%;
+  width: 25px;
+  display: block;
+  background: url('../assets/textures/ui/label/content_right.png') no-repeat center;
 }
