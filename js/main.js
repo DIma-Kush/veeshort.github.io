@@ -3,10 +3,11 @@ var raycaster;
 var mouse;
 var frustumSize = 25;   // 42 - fit
 var scrollSpeed = 0.15; // map scrolling speed
-
 // DOM
 // Map rotation buttons
 var rBtnCw, rBtnCcw;
+var container;
+var labels = [];
 
 var cameraScrollDirection = {
   left: false,
@@ -75,7 +76,6 @@ function toDeg(rad) {
 function createScene() {
   scene = new THREE.Scene();
 
-
   var aspect = window.innerWidth/window.innerHeight;
   camera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 2000 );
 
@@ -109,7 +109,6 @@ function createScene() {
 
   Terrain.group = new THREE.Group();
 
-
   pointLight.castShadow = true;
   pointLight.shadow.mapSize.width = 512;
   pointLight.shadow.mapSize.height = 512;
@@ -119,8 +118,8 @@ function createScene() {
   pointLight.position.y = Terrain.tileSize*Terrain.height/2;
   scene.add(pointLight);
 
-  // var orbit = new THREE.OrbitControls(camera, renderer.domElement);
-  // orbit.enableZoom = true;
+  var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+  orbit.enableZoom = true;
 
   // Output generated map to canvas
   for (var i = 0; i < Terrain.height; i++) {
@@ -128,17 +127,20 @@ function createScene() {
       var geometry = new THREE.BoxBufferGeometry(
         Terrain.tileSize,
         Terrain.tileSize,
-        (Terrain.map[i][j] == '0') ? 1 : 1.3
+        1.3
       );
       var material;
       if (Terrain.map[i][j] == '0') {
-        var texture =
+        var planeG = new THREE.PlaneGeometry(
+          Terrain.tileSize,
+          Terrain.tileSize);
 			  material = new THREE.MeshPhongMaterial(
           {map: Textures.list.water_01.texture});
           material.shininess = 100;
-          tile = new THREE.Mesh(geometry, material);
+          tile = new THREE.Mesh(planeG, material);
           tile.userData['isFlat'] = false;
       } else if (Terrain.map[i][j] == '1') {
+
         material = new THREE.MeshLambertMaterial(
           {map: Textures.list.grass_01.texture});
           tile = new THREE.Mesh(geometry, material);
@@ -162,11 +164,22 @@ function createScene() {
   Terrain.pivot.rotation.z = toRad(45);
   camera.position.set(0, -30, 30);
   camera.lookAt(scene.position);
-  pointLight.position.set(Terrain.width*Terrain.tileSize/2, Terrain.height*Terrain.tileSize/2, 20);
+  pointLight.position.set(Terrain.width*Terrain.tileSize/2, Terrain.height*Terrain.tileSize/2, 25);
   scene.add(Terrain.pivot);
 }
 
+function updateLabelsPosition() {
+  for (var l = 0; l < labels.length; l++) {
+    var labelPos = calc2Dpoint(labels[l].parent3D, camera);
+    labels[l].style.top = labelPos.y + 'px';
+    labels[l].style.left = labelPos.x + 'px';
+  }
+}
+
 function onWindowResize() {
+
+  updateLabelsPosition();
+
   var aspect = window.innerWidth / window.innerHeight;
 	camera.left   = - frustumSize * aspect / 2;
 	camera.right  =   frustumSize * aspect / 2;
@@ -188,6 +201,7 @@ function loop() {
     rotateMap('cw');
   if (Terrain.rotation.ccw)
     rotateMap('ccw');
+  updateLabelsPosition();
 }
 
 function scrollMap() {
@@ -272,15 +286,51 @@ function onDocumentMouseDown() {
     var building = new THREE.Mesh(
       new THREE.BoxBufferGeometry((Terrain.tileSize-1), (Terrain.tileSize-1), 1),
       bMaterials);
+    if (!intersects[0].object.userData.children) {
+      building.receiveShadow = false;
+      building.castShadow = true;
+      building.rotation.copy(intersects[0].object);
+      intersects[0].object.userData['children'] = building;
+      building.position.x = intersects[0].object.position.x;
+      building.position.y = intersects[0].object.position.y;
+      building.position.z = intersects[0].object.position.z + 1.15;
+      Terrain.group.add(building);
 
-    building.receiveShadow = false;
-    building.castShadow = true;
-    building.rotation.copy(intersects[0].object);
-    building.position.x = intersects[0].object.position.x;
-    building.position.y = intersects[0].object.position.y;
-    building.position.z = intersects[0].object.position.z + 1.2;
-    Terrain.group.add(building);
+      // add label to a building
+      var label = document.createElement('div');
+      label.style.padding = '4px';
+      label.style.background = 'rgba(255,255,255,.6)';
+      label.style.position = 'absolute';
+      label.classList.add('label');
+      label.innerHTML = "FORT #" + building.id;
+      var labelPos = calc2Dpoint(building, camera);
+      label.style.top = labelPos.y + 'px';
+      label.style.left = labelPos.x + 'px';
+      label['parent3D'] = building;
+      labels.push(label);
+      document.body.appendChild(label);
+    }
 	}
+}
+
+function calc2Dpoint(obj, camera) {
+  var vector = new THREE.Vector3();
+
+    // TODO: need to update this when resize window
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return {
+        x: vector.x,
+        y: vector.y
+    };
 }
 
 function disableElement(element) {

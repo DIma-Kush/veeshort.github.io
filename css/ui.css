@@ -12,3 +12,7 @@ button:hover {
 .no-events {
   pointer-events: none!important;
 }
+.label {
+  pointer-events: none;
+  font-family: 'Roboto', sans-serif;
+}
