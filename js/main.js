@@ -273,8 +273,8 @@ function onDocumentMouseMove(event) {
   cameraScrollDirection.bottom = rh - y <= range;
 }
 
-function onDocumentMouseDown() {
-  // event.preventDefault();
+function onDocumentMouseDown(event) {
+  event.preventDefault();
 
 	mouse.x = (event.clientX/renderer.domElement.clientWidth)*2-1;
 	mouse.y = -(event.clientY/renderer.domElement.clientHeight)*2+1;
