@@ -28,9 +28,9 @@ button:hover {
   content: '';
   position: absolute;
   top: 0;
-  left: -25px;
+  left: -24px;
   height: 100%;
-  width: 25px;
+  width: 24px;
   display: block;
   background: url('../assets/textures/ui/label/content_left.png') no-repeat center;
 }
