@@ -39,6 +39,8 @@ var Textures = {
       this.list[i]['texture'] = new THREE.TextureLoader()
       .load(this.list[i].path);
       this.list[i].texture.anisotropy = 1;
+      this.list[i].texture.magFilter = THREE.NearestFilter;
+      this.list[i].texture.minFilter = THREE.LinearMipMapLinearFilter;
     }
   }
 }
@@ -316,21 +318,20 @@ function onDocumentMouseDown() {
 function calc2Dpoint(obj, camera) {
   var vector = new THREE.Vector3();
 
-    // TODO: need to update this when resize window
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+  var widthHalf = 0.5*renderer.context.canvas.width;
+  var heightHalf = 0.5*renderer.context.canvas.height;
 
-    obj.updateMatrixWorld();
-    vector.setFromMatrixPosition(obj.matrixWorld);
-    vector.project(camera);
+  obj.updateMatrixWorld();
+  vector.setFromMatrixPosition(obj.matrixWorld);
+  vector.project(camera);
 
-    vector.x = ( vector.x * widthHalf ) + widthHalf;
-    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+  vector.x = (vector.x * widthHalf) + widthHalf;
+  vector.y = -(vector.y * heightHalf) + heightHalf;
 
-    return {
-        x: vector.x,
-        y: vector.y
-    };
+  return {
+    x: vector.x,
+    y: vector.y
+  };
 }
 
 function disableElement(element) {
