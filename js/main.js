@@ -1,7 +1,7 @@
 var scene, camera, renderer;
 var raycaster;
 var mouse;
-var frustumSize = 25;   // 42 - fit
+var frustumSize = 25; // 42 - fit
 var scrollSpeed = 0.15; // map scrolling speed
 // DOM
 // Map rotation buttons
@@ -36,10 +36,10 @@ var Textures = {
       path: '../assets/textures/structures/fort_top.png'
     }
   },
-  loadAll: function() {
+  loadAll: function () {
     for (var i in this.list) {
       this.list[i]['texture'] = new THREE.TextureLoader()
-      .load(this.list[i].path);
+        .load(this.list[i].path);
       this.list[i].texture.anisotropy = 1;
       this.list[i].texture.magFilter = THREE.NearestFilter;
       this.list[i].texture.minFilter = THREE.LinearMipMapLinearFilter;
@@ -60,7 +60,7 @@ var Terrain = {
     targetAngle: null,
     baseAngle: null
   },
-  generateMap: function(options) {
+  generateMap: function (options) {
     this.width = options.width;
     this.height = options.height;
     map = new ROT.Map.Cellular(options.width, options.height);
@@ -71,17 +71,18 @@ var Terrain = {
 };
 
 function toRad(deg) {
-  return deg*Math.PI/180;
+  return deg * Math.PI / 180;
 }
+
 function toDeg(rad) {
-  return rad*180/Math.PI;
+  return rad * 180 / Math.PI;
 }
 
 function createScene() {
   scene = new THREE.Scene();
 
-  var aspect = window.innerWidth/window.innerHeight;
-  camera = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 2000 );
+  var aspect = window.innerWidth / window.innerHeight;
+  camera = new THREE.OrthographicCamera(frustumSize * aspect / -2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / -2, 1, 2000);
 
   renderer = new THREE.WebGLRenderer();
   renderer.phisiclyCorrectLights = true;
@@ -89,12 +90,11 @@ function createScene() {
   renderer.shadowMap.enabled = true;
   scene.background = new THREE.Color(0x08050c);
   document.body.appendChild(renderer.domElement);
-
   var pointLight = new THREE.PointLight(0xf7eabe);
   pointLight.intensity = 0.8;
   pointLight.decay = 2;
 
-  var hemiLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+  var hemiLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
   scene.add(hemiLight);
 
   // Load all textures
@@ -109,7 +109,7 @@ function createScene() {
   });
 
   raycaster = new THREE.Raycaster();
-	mouse = new THREE.Vector2();
+  mouse = new THREE.Vector2();
 
   stats = stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -121,8 +121,8 @@ function createScene() {
   pointLight.shadow.mapSize.height = 512;
 
   camera.position.set(0, 0, 40);
-  pointLight.position.x = Terrain.tileSize*Terrain.width/2;
-  pointLight.position.y = Terrain.tileSize*Terrain.height/2;
+  pointLight.position.x = Terrain.tileSize * Terrain.width / 2;
+  pointLight.position.y = Terrain.tileSize * Terrain.height / 2;
   scene.add(pointLight);
 
   // var orbit = new THREE.OrbitControls(camera, renderer.domElement);
@@ -141,17 +141,19 @@ function createScene() {
         var planeG = new THREE.PlaneGeometry(
           Terrain.tileSize,
           Terrain.tileSize);
-			  material = new THREE.MeshPhongMaterial(
-          {map: Textures.list.water_01.texture});
-          material.shininess = 100;
-          tile = new THREE.Mesh(planeG, material);
-          tile.userData['isFlat'] = false;
-          tile.position.z -= geometry.parameters.depth/2;
+        material = new THREE.MeshPhongMaterial({
+          map: Textures.list.water_01.texture
+        });
+        material.shininess = 100;
+        tile = new THREE.Mesh(planeG, material);
+        tile.userData['isFlat'] = false;
+        tile.position.z -= geometry.parameters.depth / 2;
       } else if (Terrain.map[i][j] == '1') {
-        material = new THREE.MeshLambertMaterial(
-          {map: Textures.list.grass_01.texture});
-          tile = new THREE.Mesh(geometry, material);
-          tile.userData['isFlat'] = true;
+        material = new THREE.MeshLambertMaterial({
+          map: Textures.list.grass_01.texture
+        });
+        tile = new THREE.Mesh(geometry, material);
+        tile.userData['isFlat'] = true;
       }
       tile.position.x = j * Terrain.tileSize;
       tile.position.y = i * Terrain.tileSize;
@@ -171,7 +173,7 @@ function createScene() {
   Terrain.pivot.rotation.z = toRad(45);
   camera.position.set(0, -30, 30);
   camera.lookAt(scene.position);
-  pointLight.position.set(Terrain.width*Terrain.tileSize/2, Terrain.height*Terrain.tileSize/2, 25);
+  pointLight.position.set(Terrain.width * Terrain.tileSize / 2, Terrain.height * Terrain.tileSize / 2, 25);
   scene.add(Terrain.pivot);
 }
 
@@ -179,7 +181,7 @@ function updateLabelsPosition() {
   for (var l = 0; l < labels.length; l++) {
     var labelPos = calc2Dpoint(labels[l].parent3D, camera);
     labels[l].style.top = labelPos.y + 'px';
-    labels[l].style.left = labelPos.x - labels[l].offsetWidth/2 + 'px';
+    labels[l].style.left = labelPos.x - labels[l].offsetWidth / 2 + 'px';
   }
 }
 
@@ -188,19 +190,19 @@ function onWindowResize() {
   updateLabelsPosition();
 
   var aspect = window.innerWidth / window.innerHeight;
-	camera.left   = - frustumSize * aspect / 2;
-	camera.right  =   frustumSize * aspect / 2;
-	camera.top    =   frustumSize / 2;
-	camera.bottom = - frustumSize / 2;
-	camera.updateProjectionMatrix();
-	renderer.setSize( window.innerWidth, window.innerHeight );
+  camera.left = -frustumSize * aspect / 2;
+  camera.right = frustumSize * aspect / 2;
+  camera.top = frustumSize / 2;
+  camera.bottom = -frustumSize / 2;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function render() {
   requestAnimationFrame(render);
   stats.update();
   loop();
-	renderer.render(scene, camera);
+  renderer.render(scene, camera);
 }
 
 function loop() {
@@ -226,7 +228,7 @@ function scrollMap() {
     Terrain.pivot.position.y += scrollSpeed;
   }
   if (cameraScrollDirection.right || cameraScrollDirection.left ||
-      cameraScrollDirection.top || cameraScrollDirection.bottom)
+    cameraScrollDirection.top || cameraScrollDirection.bottom)
     updateLabelsPosition();
 }
 
@@ -236,15 +238,15 @@ function rotateMap(direction) {
     disableElement(sign == -1 ? rBtnCcw : rBtnCw);
     if (!Terrain.rotation.targetAngle) {
       Terrain.rotation.targetAngle =
-      Math.ceil(toDeg(Terrain.pivot.rotation.z)) + sign*90;
+        Math.ceil(toDeg(Terrain.pivot.rotation.z)) + sign * 90;
       console.log('current:', toDeg(Terrain.pivot.rotation.z));
       console.log('target:', Terrain.rotation.targetAngle);
     }
-    Terrain.pivot.rotation.z += sign*0.05;
+    Terrain.pivot.rotation.z += sign * 0.05;
 
-    var updatePos = function() {
+    var updatePos = function () {
       if (Math.abs(Terrain.rotation.targetAngle) >= 360)
-        Terrain.rotation.targetAngle -= sign*360;
+        Terrain.rotation.targetAngle -= sign * 360;
       Terrain.pivot.rotation.z = toRad(Terrain.rotation.targetAngle);
       console.log(direction, '| update (deg):', Math.ceil(toDeg(Terrain.pivot.rotation.z)));
       Terrain.rotation[direction] = false;
@@ -253,17 +255,17 @@ function rotateMap(direction) {
     }
 
     if (direction == 'ccw' && Math.ceil(toDeg(Terrain.pivot.rotation.z)) -
-        Math.ceil(Terrain.rotation.targetAngle) >= 0) updatePos();
+      Math.ceil(Terrain.rotation.targetAngle) >= 0) updatePos();
     if (direction == 'cw' && Math.ceil(toDeg(Terrain.pivot.rotation.z)) -
-        Math.ceil(Terrain.rotation.targetAngle) <= 0) updatePos();
+      Math.ceil(Terrain.rotation.targetAngle) <= 0) updatePos();
     updateLabelsPosition();
   }
 }
 
 function onDocumentMouseMove(event) {
-  var range = 5              // sensitivity zone range (px)
-  var x = event.clientX;     // Get the horizontal coordinate
-  var y = event.clientY;     // Get the vertical coordinate
+  var range = 5 // sensitivity zone range (px)
+  var x = event.clientX; // Get the horizontal coordinate
+  var y = event.clientY; // Get the vertical coordinate
 
   var rw = renderer.getSize().width;
   var rh = renderer.getSize().height;
@@ -276,27 +278,39 @@ function onDocumentMouseMove(event) {
 function onDocumentMouseDown(event) {
   event.preventDefault();
 
-	mouse.x = (event.clientX/renderer.domElement.clientWidth)*2-1;
-	mouse.y = -(event.clientY/renderer.domElement.clientHeight)*2+1;
+  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
-	raycaster.setFromCamera(mouse, camera);
+  raycaster.setFromCamera(mouse, camera);
 
-	var intersects = raycaster.intersectObjects(Terrain.group.children);
+  var intersects = raycaster.intersectObjects(Terrain.group.children);
 
-	if (intersects.length > 0 && intersects[0].object.userData.isFlat) {
-		// intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+  if (intersects.length > 0 && intersects[0].object.userData.isFlat) {
+    // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
     //color: 0xbfb49f
     var bMaterials = [
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_f.texture}),
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_s.texture}),
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_s.texture}),
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_s.texture}),
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_t.texture}),
-      new THREE.MeshLambertMaterial({map: Textures.list.fort_01_s.texture})
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_f.texture
+      }),
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_s.texture
+      }),
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_s.texture
+      }),
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_s.texture
+      }),
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_t.texture
+      }),
+      new THREE.MeshLambertMaterial({
+        map: Textures.list.fort_01_s.texture
+      })
     ];
 
     var building = new THREE.Mesh(
-      new THREE.BoxBufferGeometry((Terrain.tileSize-1), (Terrain.tileSize-1), 1),
+      new THREE.BoxBufferGeometry((Terrain.tileSize - 1), (Terrain.tileSize - 1), 1),
       bMaterials);
     if (!intersects[0].object.userData.children) {
       building.receiveShadow = false;
@@ -306,8 +320,8 @@ function onDocumentMouseDown(event) {
       building.position.x = intersects[0].object.position.x;
       building.position.y = intersects[0].object.position.y;
       building.position.z = intersects[0].object.position.z +
-      building.geometry.parameters.depth/2 +
-      intersects[0].object.geometry.parameters.depth/2;
+        building.geometry.parameters.depth / 2 +
+        intersects[0].object.geometry.parameters.depth / 2;
       Terrain.group.add(building);
 
       // add label to a building
@@ -318,24 +332,24 @@ function onDocumentMouseDown(event) {
       var labelPivot = new THREE.Object3D();
       labelPivot.position.x = building.position.x;
       labelPivot.position.y = building.position.y;
-      labelPivot.position.z = building.position.z + building.geometry.parameters.depth*2;
+      labelPivot.position.z = building.position.z + building.geometry.parameters.depth * 2;
       Terrain.group.add(labelPivot);
       document.body.appendChild(label);
 
       var labelPos = calc2Dpoint(labelPivot, camera);
       label.style.top = labelPos.y + 'px';
-      label.style.left = labelPos.x - label.offsetWidth/2 + 'px';
+      label.style.left = labelPos.x - label.offsetWidth / 2 + 'px';
       label['parent3D'] = labelPivot;
       labels.push(label);
     }
-	}
+  }
 }
 
 function calc2Dpoint(obj, camera) {
   var vector = new THREE.Vector3();
 
-  var widthHalf = 0.5*renderer.context.canvas.width;
-  var heightHalf = 0.5*renderer.context.canvas.height;
+  var widthHalf = 0.5 * renderer.context.canvas.width;
+  var heightHalf = 0.5 * renderer.context.canvas.height;
 
   obj.updateMatrixWorld();
   vector.setFromMatrixPosition(obj.matrixWorld);
@@ -362,13 +376,13 @@ function listenForRotation() {
   var rCwInt, rCcwInt;
 
   // rotate clockwise
-  rBtnCw.addEventListener('mouseup', function() {
+  rBtnCw.addEventListener('mouseup', function () {
     Terrain.rotation.ccw = false;
     Terrain.rotation.cw = true;
   }, false);
 
   // rotate couterclockwise
-  rBtnCcw.addEventListener('mouseup', function() {
+  rBtnCcw.addEventListener('mouseup', function () {
     Terrain.rotation.cw = false;
     Terrain.rotation.ccw = true;
   }, false);
@@ -379,6 +393,17 @@ function listenForDom() {
   rBtnCcw = document.querySelector('#map-rotate-ccw');
   listenForRotation();
   window.addEventListener('resize', onWindowResize, false);
+  renderer.domElement.addEventListener('wheel', onWheel);
+
+}
+var onWheel = function (e) {
+  if (e.deltaY < 0) {
+    camera.zoom += 1.5;
+  }
+  if (e.deltaY > 0) {
+    camera.zoom -= 1.5;
+  }
+  camera.updateProjectionMatrix();
 }
 
 function init() {
@@ -390,23 +415,23 @@ function init() {
 }
 
 function requestFullScreen(element) {
-	if(element.requestFullscreen)
-		element.requestFullscreen();
-	else if(element.mozRequestFullScreen)
-		element.mozRequestFullScreen();
-	else if(element.webkitRequestFullscreen)
-		element.webkitRequestFullscreen();
-	else if(element.msRequestFullscreen)
-		element.msRequestFullscreen();
+  if (element.requestFullscreen)
+    element.requestFullscreen();
+  else if (element.mozRequestFullScreen)
+    element.mozRequestFullScreen();
+  else if (element.webkitRequestFullscreen)
+    element.webkitRequestFullscreen();
+  else if (element.msRequestFullscreen)
+    element.msRequestFullscreen();
 }
 
-window.onload = function() {
+window.onload = function () {
   // full-screen available?
   if (
-  	document.fullscreenEnabled ||
-  	document.webkitFullscreenEnabled ||
-  	document.mozFullScreenEnabled ||
-  	document.msFullscreenEnabled
+    document.fullscreenEnabled ||
+    document.webkitFullscreenEnabled ||
+    document.mozFullScreenEnabled ||
+    document.msFullscreenEnabled
   ) {
     requestFullScreen(document);
   }
