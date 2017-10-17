@@ -379,7 +379,19 @@ function listenForDom() {
   rBtnCcw = document.querySelector('#map-rotate-ccw');
   listenForRotation();
   window.addEventListener('resize', onWindowResize, false);
-}
+  renderer.domElement.addEventListener('wheel', onWheel);
+  }
+
+  var onWheel = function (e) {
+    if (e.deltaY < 0) {
+      camera.zoom += 1.5;
+    }
+    if (e.deltaY > 0) {
+      camera.zoom -= 1.5;
+    }
+    camera.updateProjectionMatrix();
+    updateLabelsPosition();
+  }
 
 function init() {
   createScene();
@@ -398,7 +410,7 @@ function requestFullScreen(element) {
 		element.webkitRequestFullscreen();
 	else if(element.msRequestFullscreen)
 		element.msRequestFullscreen();
-}
+};
 
 window.onload = function() {
   // full-screen available?
